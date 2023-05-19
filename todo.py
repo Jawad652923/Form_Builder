@@ -26,7 +26,6 @@ def show_data():
 @app.route('/edit', methods=["GET","POST"])
 def edit_data():
     if request.method=="GET":
-       
         return render_template('edit.html')
 
 @app.route("/view" , methods=["GET"])
