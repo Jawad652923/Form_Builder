@@ -1,79 +1,60 @@
-from flask import Flask, jsonify , request ,render_template , redirect,url_for
+from flask import Flask, jsonify, request, render_template
 import pymongo
-from flask_cors import CORS
-from bson import ObjectId
+import json
 from bson.json_util import dumps
-client  = pymongo.MongoClient("mongodb+srv://dbjawad:db652923@cluster0.wagjjnz.mongodb.net/?retryWrites=true&w=majority")
+from bson.objectid import ObjectId
+from classes.models import Data 
+from classes.models import originalData
+app=Flask(__name__)
+
+client = pymongo.MongoClient("mongodb+srv://dbjawad:db652923@cluster0.wagjjnz.mongodb.net/?retryWrites=true&w=majority")
 db = client.task
-user=db['task']
-app = Flask(__name__)
-cors = CORS(app)
+formsdb = db['task']
+db=client.fields
+fieldsdb=db['fields']
 
 
-@app.route('/form', methods=['POST', 'GET'])
-def add_data():
-    if request.method=='POST':
-        user.insert_one(request.get_json('data'))
+@app.route("/create_form",methods=['GET','POST'])
+def createForm():
+    if request.method == 'POST':
+        Data.saveData()
+        originalData.perm_Data()
+        return jsonify({"success": True})
+    return render_template('create_form.html')
 
-    return render_template('form.html')
-
-@app.route('/user', methods=['POST','GET'])
-def show_data():
-    data= user.find({})
-    # print(data)
-    return render_template('user.html',data=(data))
-    
-@app.route('/edit', methods=["GET","POST"])
-def edit_data():
-    if request.method=="GET":
-        return render_template('edit.html')
-
-@app.route("/view" , methods=["GET"])
-def view_data():
-    data= user.find({})
-    resp = dumps(data)
+@app.route("/view_form",methods=['GET'])
+def viewForm():
+    data = Data.findData()
+    # resp=list(data)
     # print(resp)
+    # temp=formsdb.find().sort('_id',pymongo.DESCENDING).limit(1)[0]['_id']
+    # print(temp)
+    # temp=formsdb.find().
+    return render_template('view_form.html',data=(data))
+
+@app.route("/edit_form",methods=['GET'])
+def editForm():
+    if request.method=='GET':
+        query= request.args.get('id')
+        # print(query)
+        data=Data.findData()
+        return render_template('edit_form.html', data=data,query=query)
+
+
+@app.route('/update_form/<__id>', methods=['PUT'])
+def update_form(__id):
+    Data(id).updateData(__id)
+    originalData(id).check_Data(__id)
+    return jsonify({'message': 'Form updated successfully'})
+
+@app.route("/json_Data", methods=["GET"])
+def json_data():
+    data = Data.findData()
+    resp = dumps(data)
+    # print(res)
     return resp
 
-
-
-
-
-@app.route("/object")
-def object():
-    return render_template('object.html')
-
-# @app.route('/todo' , methods=['POST','GET','DELETE','PUT'])
-# def todo_list():
-#     if request.method=='POST':
-#         create_task= request.form.get('task')
-#         user.insert_one({'task':create_task})
-#         return redirect(url_for('todo_list'))
-#     if request.method=='GET':
-#         task=user.find({})
-#         return render_template('todo.html',task=list(task))
-#     # if request.method=='DELETE':
-#     #     task = user.delete_one({"_id":ObjectId('6419ebd3f68f9753bef8e563')})
-#     #     return render_template('todo.html',task=task)
-#     # elif request.method=='PUT':
-#     #     task = user.update_one({})
-#     #     return render_template('todo.html', task= list(task))
-#     # return render_template('todo.html')
-
-# @app.route('/delete_todo/<id_>')
-# def delete_task(id_):
-#     user.delete_one({"_id":ObjectId(id_)})
-#     return redirect(url_for('todo_list'))
-
-
-# @app.route('/update_todo/<id__>')
-# def update_task(id__):
-#     user.update_one({"_id":ObjectId(id__)},
-#                         {"$set":{"task":request.form.get('task')} })
-#     return redirect(url_for('todo_list'))
-
-
 if __name__ == '__main__':
-    
     app.run(debug=True)
+
 

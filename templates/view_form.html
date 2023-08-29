@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>View form</title>
+</head>
+
+<body>
+        <div id="fb-editor"></div>
+        
+        <table>
+                <form>
+                        {%for item in data %}
+                        <!-- nested-loop for the objects in data -->
+                        {%for obj in item.data%}
+                        <!-- for username -->
+                        {%if obj.subtype=='text'%}
+                        <label>{{obj.label}}</label>
+                        <br><input type={{obj.subtype}}></br>
+                        <!-- for email -->
+                        {%elif obj.subtype=='email'%}
+                        <label>{{obj.label}}</label>
+                        <br><input type={{obj.subtype}}></br>
+                        <!-- for password -->
+                        {%elif obj.subtype=='password'%}
+                        <label>{{obj.label}}</label>
+                        <br><input type={{obj.subtype}}></br>
+                        <!-- for head1 -->
+                        {%elif obj.subtype=='h1'%}
+                        <h1>{{obj.label}}</h1>
+                        <!-- for head2 -->
+                        {%elif obj.subtype=='h2'%}
+                        <h2>{{obj.label}}</h2>
+                        <!-- for head3 -->
+                        {%elif obj.subtype=='h3'%}
+                        <h3>{{obj.label}}</h3>
+                        <!-- for numbers -->
+                        {%elif obj.type=='number'%}
+                        <label>{{obj.label}}</label>
+                        <br><input type="number"></br>
+                        <!-- for buttons -->
+                        {%elif obj.subtype=='button'%}
+                        <br><button type={{obj.subtype}}>{{obj.label}}</button></br>
+                        <!-- for paragraph -->
+                        {%elif obj.subtype=='p'%}
+                        <br>
+                        <p>{{obj.label}}</p></br>
+                        <!-- for textarea -->
+                        {%elif obj.subtype=='textarea'%}
+                        <label>{{obj.label}}</label>
+                        <br><textarea>{{obj.subtype}}</textarea></br>
+                        <!-- for checkbox -->
+                        {%elif obj.type=='checkbox-group'%}
+                        <br><label>{{obj.label}}</label></br>
+                        <!-- nested loop for checkbox values -->
+                        {%for obj in obj['values']%}
+                        <br><label>{{obj.label}}</label>
+                        <input type="checkbox"></br>
+                        {%endfor%}
+                        <!-- for date -->
+                        {%elif obj.type=='date'%}
+                        <label>{{obj.label}}</label>
+                        <br><input type="date"></br>
+                        <!-- for file -->
+                        {%elif obj.subtype=='file'%}
+                        <label>{{obj.label}}</label>
+                        <br><input type="file"></br>
+
+                        <!-- for radio-buttons -->
+                        {%elif obj.type=='radio-group'%}
+                        <label>{{obj.label}}</label>
+                        <!-- nested loop for radio button options  -->
+                        {%for obj in obj['values']%}
+                        <br><label>{{obj.label}}</label></br>
+                        <input type="radio">
+                        {%endfor%}
+                        <!-- for select-opt -->
+                        {%elif obj.type=='select'%}
+                        <br><label>{{obj.label}}</label> </br>
+                        <select>
+                                <!-- nested loop for the select options -->
+                                {%for obj in obj['values']%}
+                                <option>{{obj.label}}</option>
+                                {%endfor%}
+                        </select>
+                        <!-- for hidden values -->
+                        {%elif obj.type=='hidden'%}
+                        <br><input type="hidden" value={{obj.value}}>
+                        {%endif%}
+                        {%endfor%}
+
+                        {%endfor%}
+                </form>
+        </table>
+       
+        <button><a href="/edit_form">Edit form</a></button>
+
+</body>
+
+</html>
+<!-- <!DOCTYPE html>
+<html>
+<head>
+    <title>Last ObjectId</title>
+</head>
+<body>
+    {% if latest_object_id %}
+        <p>Last ObjectId: {{ latest_object_id }}</p>
+    {% else %}
+        <p>No documents found.</p>
+    {% endif %}
+</body>
+</html>
+ -->
+<!-- latest_document = collection.find_one(sort=[('_id', -1)])
+    latest_object_id = str(latest_document['_id']) if latest_document else None
+    return render_template('index.html', latest_object_id=latest_object_id) -->
+    <!-- latest_document = collection.find_one(sort=[('_id', -1)])
+    if latest_document:
+        latest_object_id = latest_document['_id']
+        return render_template('index.html', latest_object_id=latest_object_id)
+    return render_template('index.html', latest_object_id=None) -->

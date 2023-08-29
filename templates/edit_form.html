@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Edit Form</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+    <script src="https://formbuilder.online/assets/js/form-builder.min.js"></script>
+</head>
+
+<body>
+    <div id="fb-editor"></div>
+    <button id="getJSON">Get Json Data </button>
+    <button id="updateData" onclick="updateForm()">Update Data</button>
+    <form>
+        <ul id="formList">
+            {% for item in data %}
+            <li>
+                Form {{ loop.index }}:
+                <button class="editForm" data-index="{{ loop.index }}" value="{{item._id}}">Edit</button>
+                <!-- <button><a href="/update_form/{{item._id}}">update</a></button> -->
+            </li>
+            {% endfor %}
+        </ul>
+    </form>
+
+
+    <script>
+        let formBuilder = $('#fb-editor').formBuilder();
+        let selectedFormId = null;
+        let formDataArray = [];
+        // let query=new URLSearchParams(location.search)
+        // for(let[key, value] of query){
+            //     console.log(`${key}:${value}`);
+            // }
+            function fetchData() {
+                return fetch("/json_Data")
+                .then(response => response.json())
+                .then(data => {
+                    formDataArray = data;
+                    // console.log(formDataArray);
+                })
+                
+                .catch (error => console.error("Error fetching data:", error));
+            }
+            
+            fetchData();
+
+        $(document).ready(function () {
+            $('#getJSON').click(function () {
+                alert(JSON.stringify(formBuilder.actions.getData('json', true)));
+            });
+
+            $('.editForm').click(function (e) {
+                e.preventDefault();
+                let formIndex = $(this).data('index');
+                let formData = formDataArray[formIndex - 1].data;
+                console.log(formData);
+                formBuilder.actions.setData(formData);
+                
+                selectedFormId = $(this).data('id');
+
+                let url = new URL(window.location.href);
+                let search = url.searchParams;
+                search.set('id', e.target.value);
+                let objectid = search.get('id')
+                // console.log(objectid);
+                window.history.pushState(null, null, url.toString());
+            });
+        });
+
+
+
+
+
+        async function updateForm() {
+            let url = new URL(window.location.href);
+            let search = url.searchParams;
+            let queryFormId = search.get('id');
+            // console.log(queryFormId);
+
+            if (!queryFormId) {
+                console.error("No form selected for update");
+                return;
+            }
+
+            const updatedFormData = formBuilder.actions.getData();
+            console.log(updatedFormData);
+            if (queryFormId) {
+                const response = await fetch(`/update_form/${queryFormId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body:JSON.stringify({ data: updatedFormData })
+                });
+                console.log(response);
+
+                const responseData = await response.json();
+                console.log(responseData);
+            }
+            else {
+                console.error("Error updating form:", error);
+            }
+        }
+
+    </script>
+
+
+</body>
+
+</html>
